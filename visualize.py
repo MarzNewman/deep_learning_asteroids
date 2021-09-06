@@ -60,7 +60,7 @@ cfg.merge_from_file(model_zoo.get_config_file('COCO-Detection/faster_rcnn_R_50_F
 #cfg.merge_from_file(curdir + '/output/model_final_MK2(3class).pth')
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5 # Set threshold for this model
 #cfg.MODEL.WEIGHTS = curdir + '/output/model_final.pth' # Set path model .pth
-cfg.MODEL.WEIGHTS = curdir + '/output/model_final_MK2(3class).pth' # Set path model .pth
+cfg.MODEL.WEIGHTS = curdir + '/output/model_final.pth' # Set path model .pth
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 3
 cfg.MODEL.DEVICE = 'cpu'
 predictor = DefaultPredictor(cfg)
@@ -198,7 +198,7 @@ for d in ["train", "test"]:
 	#print(predictor["instances"].pred_classes)
 	DatasetCatalog.register("astdataset_" + d, lambda d=d: get_dicts( d))
 #	MetadataCatalog.get("astdataset_" + d).set(thing_classes=['artifacts','red_cosmic_rays', 'variable_stars', 'blue_cosmic_rays', 'green_cosmic_rays', 'asteroids', 'object_of_interest'])
-	MetadataCatalog.get("astdataset_" + d).set(thing_classes=['combined', 'variable_stars', 'asteroids'])
+	MetadataCatalog.get("astdataset_" + d).set(thing_classes=['asteroids', 'variable_stars', 'combined'])
 	#MetadataCatalog.get("astdataset_" + d)
 	
 ast_metadata = MetadataCatalog.get("astdataset_train")
@@ -223,7 +223,7 @@ dataset_dicts = get_dicts(curdir + "/train")
 #	plt.imshow(out.get_image()[:, :, ::-1])
 #	plt.show()
 
-dataloader_test = build_detection_train_loader("balloon_val", mapper=custom_mapper, total_batch_size=76)
+dataloader_test = build_detection_train_loader("astdataset_test", mapper=custom_mapper, total_batch_size=76)
 
 #visualize data with bounding boxes
 #dataset_dicts = get_dicts(curdir + "/test")

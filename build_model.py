@@ -127,7 +127,7 @@ def get_dicts(img_dir):
 for d in ["train", "test"]:
 	DatasetCatalog.register("astdataset_" + d, lambda d=d: get_dicts( d))
 	#MetadataCatalog.get("astdataset_" + d).set(thing_classes=['artifacts','red_cosmic_rays', 'variable_stars', 'blue_cosmic_rays', 'green_cosmic_rays', 'asteroids', 'object_of_interest'])
-	MetadataCatalog.get("astdataset_" + d).set(thing_classes=['combined', 'variable_stars', 'asteroids'])
+	MetadataCatalog.get("astdataset_" + d).set(thing_classes=['asteroids', 'variable_stars', 'combined'])
 ast_metadata = MetadataCatalog.get("astdataset_train")
 
 #prints randomly selected images with annotations

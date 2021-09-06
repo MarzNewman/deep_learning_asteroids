@@ -21,7 +21,7 @@ from detectron2.utils.logger import setup_logger
 setup_logger()
 import numpy as np
 import os, json, cv2, random
-random.seed(a=0)
+#random.seed(a=0)
 from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
@@ -59,9 +59,9 @@ cfg = get_cfg()	#gets a copy of the default config
 cfg.merge_from_file(model_zoo.get_config_file('COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml'))
 #cfg.merge_from_file(curdir +'/output/balloon_model_final.pth')
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5 # Set threshold for this model
-cfg.MODEL.WEIGHTS = curdir + '/output/balloon_model_final.pth' # Set path model .pth
+cfg.MODEL.WEIGHTS = curdir + '/output/model_final.pth' # Set path model .pth
 #cfg.MODEL.WEIGHTS = curdir + '/output/model_final_MK1(7class).pth' # Set path model .pth
-cfg.MODEL.ROI_HEADS.NUM_CLASSES = 3	#number of classes
+cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1	#number of classes
 cfg.MODEL.DEVICE = 'cpu'
 predictor = DefaultPredictor(cfg)
 model = build_model(cfg)
@@ -78,7 +78,7 @@ print (predictor)
 # register_coco_instances("my_dataset_val", {}, "json_annotation_val.json", "path/to/image/dir")
 
 # read the csv file using read_csv function of pandas
-train = pd.read_csv('data.csv')
+#train = pd.read_csv('data.csv')
 
 #plots example of image with labels
 fig = plt.figure()
@@ -91,44 +91,44 @@ ax = fig.add_axes([0,0,1,1])
 #plt.imshow(image)
 
 #iterates over image for different objects
-for _,row in train[train.image_names == "N22_r_190630_RGB.png"].iterrows():
-	xmin = row.xmin
-	xmax = row.xmax
-	ymin = row.ymin
-	ymax = row.ymax
+#for _,row in train[train.image_names == "N22_r_190630_RGB.png"].iterrows():
+#	xmin = row.xmin
+#	xmax = row.xmax
+#	ymin = row.ymin
+#	ymax = row.ymax
     
-	width = xmax - xmin
-	height = ymax - ymin
+#	width = xmax - xmin
+#	height = ymax - ymin
     
 	# assign different color to different classes of objects
-	if row.region_type == 'artifacts':
-		edgecolor = 'black'
-		ax.annotate('artifact', xy=(xmax-40,ymin+20))
-	elif row.region_type == 'asteroids':
-		edgecolor = 'cyan'
-		ax.annotate('asteroid', xy=(xmax-40,ymin+20))
-	elif row.region_type == 'variable_stars':
-		edgecolor = 'yellow'
-		ax.annotate('var_star', xy=(xmax-40,ymin+20))
-	elif row.region_type == 'green_cosmic_rays':
-		edgecolor = 'limegreen'
-		ax.annotate('ray', xy=(xmax-40,ymin+20))
-	elif row.region_type == 'red_cosmic_rays':
-		edgecolor = 'red'
-		ax.annotate('ray', xy=(xmax-40,ymin+20))
-	elif row.region_type == 'blue_cosmic_rays':
-		edgecolor = 'blue'
-		ax.annotate('ray', xy=(xmax-40,ymin+20))
-	elif row.region_type == 'object_of_interest':
-		edgecolor = 'magenta'
-		ax.annotate('unknown', xy=(xmax-40,ymin+20))
+#	if row.region_type == 'artifacts':
+#		edgecolor = 'black'
+#		ax.annotate('artifact', xy=(xmax-40,ymin+20))
+#	elif row.region_type == 'asteroids':
+#		edgecolor = 'cyan'
+#		ax.annotate('asteroid', xy=(xmax-40,ymin+20))
+#	elif row.region_type == 'variable_stars':
+#		edgecolor = 'yellow'
+#		ax.annotate('var_star', xy=(xmax-40,ymin+20))
+#	elif row.region_type == 'green_cosmic_rays':
+#		edgecolor = 'limegreen'
+#		ax.annotate('ray', xy=(xmax-40,ymin+20))
+#	elif row.region_type == 'red_cosmic_rays':
+#		edgecolor = 'red'
+#		ax.annotate('ray', xy=(xmax-40,ymin+20))
+#	elif row.region_type == 'blue_cosmic_rays':
+#		edgecolor = 'blue'
+#		ax.annotate('ray', xy=(xmax-40,ymin+20))
+#	elif row.region_type == 'object_of_interest':
+#		edgecolor = 'magenta'
+#		ax.annotate('unknown', xy=(xmax-40,ymin+20))
 		
 	# add bounding boxes to the image
-	rect = patches.Rectangle((xmin,ymin), width, height, edgecolor = edgecolor, facecolor = 'none')
+#	rect = patches.Rectangle((xmin,ymin), width, height, edgecolor = edgecolor, facecolor = 'none')
 	
-	ax.add_patch(rect)
+#	ax.add_patch(rect)
 #plt.show()
-plt.close()
+#plt.close()
 
 def custom_mapper(dataset_dict2, filename):
     dataset_dict3 = copy.deepcopy(dataset_dict2) # it will be modified by code below
@@ -249,7 +249,7 @@ dataset_dicts = get_balloon_dicts(curdir + "/balloon/val")
 
 #dataloader_test = build_detection_test_loader("balloon_val", mapper=DatasetMapper(cfg, is_train=False))
 
-for d in random.sample(dataset_dicts, 1):    
+for d in random.sample(dataset_dicts, 3):    
 	im = cv2.imread(d["file_name"])
 	#print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 	#print(type(im))

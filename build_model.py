@@ -90,19 +90,19 @@ def get_dicts(img_dir):
 	dataset_dicts = imgs_anns
 	
 	#dataset_dicts = []
-	for idx, v in enumerate(imgs_anns):
-		record = {}
+##	for idx, v in enumerate(imgs_anns):
+##		record = {}
 
-		filename = os.path.join(img_dir, v["file_name"])
-		height, width = cv2.imread(filename).shape[:2]
+##		filename = os.path.join(img_dir, v["file_name"])
+##		height, width = cv2.imread(filename).shape[:2]
         
-		record["file_name"] = filename
-		record["image_id"] = idx
-		record["height"] = height
-		record["width"] = width
+##		record["file_name"] = filename
+##		record["image_id"] = idx
+##		record["height"] = height
+##		record["width"] = width
       
-		annos = v["annotations"]
-		objs = []
+##		annos = v["annotations"]
+##		objs = []
 #		for _, anno in annos:
 #			assert not anno["region_attributes"]
 #			anno = anno["shape_attributes"]
@@ -154,7 +154,7 @@ cfg.SOLVER.IMS_PER_BATCH = 2
 cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR
 cfg.SOLVER.MAX_ITER = 300    # 300 iterations seems good enough for this toy dataset; you will need to train longer for a practical dataset
 cfg.SOLVER.STEPS = []        # do not decay learning rate
-cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128   # faster, and good enough for this toy dataset (default: 512)
+cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512   # 128 is faster, and good enough for this toy dataset (default: 512)
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 3  # only has one class (balloon). (see https://detectron2.readthedocs.io/tutorials/datasets.html#update-the-config-for-new-datasets)
 # NOTE: this config means the number of classes, but a few popular unofficial tutorials incorrect uses num_classes+1 here.
 cfg.MODEL.DEVICE = 'cpu'

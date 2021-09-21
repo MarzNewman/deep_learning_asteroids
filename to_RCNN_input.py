@@ -12,6 +12,9 @@ import matplotlib.pyplot as plt
 import csv
 import json
 from detectron2.structures import BoxMode
+import random
+random.seed(a=0)	#adding a seed here because I don't want the input data for the model to change every time I run this script
+import shutil 
 
 #defines an empty list for all dictionaries
 listdict = []
@@ -24,8 +27,12 @@ img_width = 2046
 curdir = os.getcwd()
 
 #gets a list of all regions files
-regfiles = glob.glob('/mnt/c/Users/marzt/Documents/Research/MISHAPS_F1_N*_r/MISHAPS_F1_*_r_*.reg')
-#regfiles = glob.glob('/mnt/c/Users/marzt/Documents/Research/MISHAPS_F1_N20_r/MISHAPS_F1_*_r_*.reg')
+regfiles = glob.glob('/mnt/c/Users/marzt/Documents/Research/MISHAPS_F1_*_r/MISHAPS_F1_*_r_*.reg')
+
+#creates variable for the total number of objects in each classification to be used in the training set
+num_ast = 0
+num_var = 0
+num_com = 0
 
 #function that gets the images in the proper zscale
 def _data_stretch(image, vmin=None, vmax=None, pmin=0.25, pmax=99.75,
@@ -76,6 +83,10 @@ for regfile in regfiles:
 		blue_image = command_list[command_list.index('-blue') + 1]
 		
 		#gets data from the red, green, and blue fits files
+		#if os.path.isfile(red_image) == False:
+		#	print('Error: fits file not found')
+		#	break
+		
 		image_r = fits.getdata(filedir + '/' + red_image)
 		image_g = fits.getdata(filedir + '/' + green_image)
 		image_b = fits.getdata(filedir + '/' + blue_image)
@@ -123,9 +134,12 @@ for regfile in regfiles:
 	file = open('/mnt/c/Users/marzt/Documents/Research/MISHAPS_F1_'+ chip +'_' + filter +'/MISHAPS_F1_' + chip + '_' + filter + '_' + date + '.reg', 'r')
 	lines = file.readlines()[3:]
 	
-	#creates empty list for notations
-	annotations = []
+	#creates empty lists for notations for each class
+	annotations0 = []
+	annotations1 = []
+	annotations2 = []
 	
+	#iterates over regions in each image
 	for line in lines:
 		#creates a list containting parameters of each region
 		region_params = line[line.find("(")+1:line.find(")")]
@@ -171,51 +185,60 @@ for regfile in regfiles:
 		#converts dimensions into int data type	
 		x_initial = int(x_initial)
 		x_final = int(x_final)
-		#y_initial = int(y_initial)
-		#y_final = int(y_final)
 		y_initial = img_height - int(y_initial)
 		y_final = img_height - int(y_final)
 		
 		width = x_final - x_initial
 		height = y_final - y_initial
 		
-		#writes to data.csv file with region data
-		#typedict={'white':'artifacts','red':'red_cosmic_rays', 'yellow':'variable_stars', 
-		#	'blue':'blue_cosmic_rays', 'green':'green_cosmic_rays','cyan':'asteroids',
-		#	'black':'object_of_interest'}
-		#with open('data.csv', mode='a') as data:
-		#	data = csv.writer(data, delimiter=',')
-		#	data.writerow([os.path.basename(filepath), x_initial, x_final, y_initial, y_final, typedict[color]])
-		
-		#writes to .json file with region data
-		#typedict={'white':'artifacts','red':'red_cosmic_rays', 'yellow':'variable_stars', 
-		#	'blue':'blue_cosmic_rays', 'green':'green_cosmic_rays','cyan':'asteroids',
-		#	'black':'object_of_interest'}
-		#common = {"file_name" : filepath, "height" : height, "width" : width, "image_id" : os.path.basename(filepath)}
-		#annotations = {"annotations" : [{"bbox" : [x_initial, y_initial, width, height], "bbox_mode" : BoxMode.XYWH_ABS, "category_id" : catdict[color], 
-		#	"segmentation" : '', "keypoints" : "", "iscrowd" : 0}]}
-		##imageitem = {"file_name" : filepath, "height" : height, "width" : width, "image_id" : os.path.basename(filepath), 
-		##	"annotations" : [{"bbox" : [x_initial, y_initial, width, height], "bbox_mode" : BoxMode.XYWH_ABS, "category_id" : catdict[color], 
-		##	"segmentation" : '', "keypoints" : "", "iscrowd" : 0}]}
-		#annotations.append({"bbox" : [x_initial, y_initial, width, height], "bbox_mode" : 1, "category_id" : catdict[color], 				"segmentation" : "", "keypoints" : "", "iscrowd" : 0})
-		
-		
 		#dictionary for objects
-		#catdict={'white' : 0 , 'red' : 1, 'yellow' : 2, 'blue' : 3, 'green' : 4, 'cyan' : 5, 'black' : 6}
-		#catdict={'white' : 0 , 'red' : 0, 'yellow' : 1, 'blue' : 0, 'green' : 0, 'cyan' : 2, 'black' : 0}
 		catdict={'white' : 2, 'red' : 2, 'yellow' : 1, 'blue' : 2, 'green' : 2, 'cyan' : 0, 'black' : 2}
 		
-		annotations.append({"bbox" : [x_initial, y_initial, width, height], "bbox_mode" : 1, "category_id" : catdict[color]})
+		#appends region information to the corresponding class annotation list
+		if catdict[color] == 0:
+			annotations0.append({"bbox" : [x_initial, y_initial, width, height], "bbox_mode" : 1, "category_id" : catdict[color]})
+		elif catdict[color] == 1:
+			annotations1.append({"bbox" : [x_initial, y_initial, width, height], "bbox_mode" : 1, "category_id" : catdict[color]})
+		elif catdict[color] == 2:
+			annotations2.append({"bbox" : [x_initial, y_initial, width, height], "bbox_mode" : 1, "category_id" : catdict[color]})
+	
+	#shortens the lists to a set amount of regions to use in the final data file
+	annotations1 = random.sample(annotations1, int(0.39*len(annotations1)))
+	annotations2 = random.sample(annotations2, int(0.075*len(annotations2)))
+	print(len(annotations0), len(annotations1), len(annotations2))
+	
+	#increases numbers of each category to find the total number
+	num_ast = num_ast + len(annotations0)
+	num_var = num_var + len(annotations1)
+	num_com = num_com + len(annotations2)
+	
+	#combines annotations files into a larger annotations file
+	annotations = annotations0 + annotations1 + annotations2
 		
 	imageitem["annotations"] = annotations	
-	#imageitem.append("annotations", annotations)	
 	
 	#defines list of dictionaries
 	listdict.append(imageitem)
 	
-	#with open('json_data.json', mode='a') as outfile:
-	#	json.dump(imageitem, outfile, sort_keys= True, indent=4)
+print('total number of asteroids: ', num_ast)
+print('total number of variable stars: ', num_var)
+print('total number of artifacts: ', num_com)
 
-#print(listdict)
 with open('train/json_data.json', mode='w') as outfile:
 	json.dump(listdict, outfile, sort_keys= True, indent=4)
+	
+#adds images to the testing and training directories
+test_dir = curdir + '/test'
+train_dir = curdir + '/train'
+source_dir = curdir + '/data'
+
+move_to_train = glob.glob(source_dir + '/*.png')
+move_to_test = random.sample(glob.glob(source_dir + '/*.png'), int(0.3*len(regfiles)))
+print(len(regfiles))
+
+for file in move_to_test:	#moves training images to train directory
+	shutil.copy(file, test_dir)
+	move_to_train.remove(file)
+	
+for file in move_to_train:
+	shutil.copy(file, train_dir)

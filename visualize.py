@@ -152,27 +152,32 @@ def custom_mapper(dataset_dict):
 #DatasetCatalog.clear()
 
 def get_dicts(img_dir):
+	#json file with data for each image
 	json_file = os.path.join(img_dir, "json_data.json")
+	
+	#opens json file for reading
 	with open(json_file) as f:
 		imgs_anns = json.load(f)
 	
 	dataset_dicts = imgs_anns
 	
 	#dataset_dicts = []
-	for idx, v in enumerate(imgs_anns):
-		record = {}
+	
+	#creates an annotation for each labeled object in each image in the data taken from the json file
+##	for idx, v in enumerate(imgs_anns):
+##		record = {}
 
-		filename = os.path.join(img_dir, v["file_name"])
-		height, width = cv2.imread(filename).shape[:2]
+##		filename = os.path.join(img_dir, v["file_name"])
+##		height, width = cv2.imread(filename).shape[:2]
         
         	#defines variables from json file
-		record["file_name"] = filename
-		record["image_id"] = idx
-		record["height"] = height
-		record["width"] = width
+##		record["file_name"] = filename
+##		record["image_id"] = idx
+##		record["height"] = height
+##		record["width"] = width
       
-		annos = v["annotations"]
-#		objs = []
+##		annos = v["annotations"]
+##		objs = []
 #		for _, anno in annos:
 #			assert not anno["region_attributes"]
 #			anno = anno["shape_attributes"]
@@ -212,16 +217,17 @@ dataset_dicts = get_dicts(curdir + "/train")
 #print(dataset_dicts)
 
 #shows a sample of labeled images
-#for d in random.sample(dataset_dicts, 1):
+for d in random.sample(dataset_dicts, 1):
 	#print(d)
-#	img = cv2.imread(d["file_name"])
-#	print(img.shape)
-#	visualizer = Visualizer(img[:, :, ::-1], metadata=ast_metadata, scale=0.5, instance_mode=ColorMode.IMAGE_BW)
-#	out = visualizer.draw_dataset_dict(d)
+	img = cv2.imread(d["file_name"])
+	print(img.shape)
+	visualizer = Visualizer(img[:, :, ::-1], metadata=ast_metadata, scale=0.5, instance_mode=ColorMode.IMAGE_BW)
+	out = visualizer.draw_dataset_dict(d)
 	#cv2.imshow('', out.get_image()[:, :, ::-1])
 	#cv2.waitKey(0)
-#	plt.imshow(out.get_image()[:, :, ::-1])
-#	plt.show()
+	plt.imshow(out.get_image()[:, :, ::-1])
+	plt.show()
+plt.close()
 
 dataloader_test = build_detection_train_loader("astdataset_test", mapper=custom_mapper, total_batch_size=76)
 
@@ -229,6 +235,8 @@ dataloader_test = build_detection_train_loader("astdataset_test", mapper=custom_
 #dataset_dicts = get_dicts(curdir + "/test")
 #outputs = model(dataset_dicts)
 #print(outputs["instances"].pred_classes)
+
+#visualizes a random image with the labeled objects
 for d in random.sample(dataset_dicts, 1):    
 	im = cv2.imread(d["file_name"])
 	print(d["file_name"])

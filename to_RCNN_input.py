@@ -68,7 +68,10 @@ for regfile in regfiles:
 	date = regfile_list[4].rstrip('.reg')
 
 	#checks if image was already created; if True, skips process	
-	filepath = curdir + '/data/' + chip + '_' + filter + '_' + date + '_RGB.png'
+	
+	filepath = curdir + '/data/' + chip + '_' + filter + '_' + date + '_RGB.png' 
+	
+	
 	if os.path.isfile(filepath) == False:
 		#opens line 1 (command) of information file for reading
 		info_file = open(filedir + '/' + chip + '_' + filter + '_' + date + '.txt', 'r')
@@ -128,7 +131,8 @@ for regfile in regfiles:
 		#plt.show()
 		inverted_image.save(filepath)
 		
-	imageitem = {"file_name" : filepath, "height" : img_height, "width" : img_width, "image_id" : os.path.basename(filepath)}
+	imageitem = {"file_name" : filepath, "height" : img_height, "width" : img_width, "image_id" : os.path.basename(filepath)}  ###### for running on *my* machine
+	#imageitem = {"file_name" : '/project/marz746/label_asteroids/data/' + chip + '_' + filter + '_' + date + '_RGB.png', "height" : img_height, "width" : img_width, "image_id" : os.path.basename(filepath)}	######## for running on the LSU HPC
 		
 	#opens regions file for reading by lines
 	file = open('/mnt/c/Users/marzt/Documents/Research/MISHAPS_F1_'+ chip +'_' + filter +'/MISHAPS_F1_' + chip + '_' + filter + '_' + date + '.reg', 'r')
@@ -205,6 +209,12 @@ for regfile in regfiles:
 	#shortens the lists to a set amount of regions to use in the final data file
 	annotations1 = random.sample(annotations1, int(0.39*len(annotations1)))
 	annotations2 = random.sample(annotations2, int(0.075*len(annotations2)))
+	
+	#decreases all annotations because there are too many
+	#annotations0 = random.sample(annotations0, int(0.25*len(annotations0)))
+	#annotations1 = random.sample(annotations1, int(0.25*len(annotations1)))
+	#annotations2 = random.sample(annotations2, int(0.25*len(annotations2)))
+	
 	print(len(annotations0), len(annotations1), len(annotations2))
 	
 	#increases numbers of each category to find the total number
